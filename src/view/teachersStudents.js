@@ -1,20 +1,20 @@
 import { Component } from 'react';
 import "../App.css"
 import MapComponent from './mapComponent';
-import StudentCard from './studentCard';
 // import DelButton from '../componentListNPM/componentForms/deleteButton';
 // import RunButton from '../componentListNPM/componentForms/runButton';
 // import ParentFormComponent from '../componentListNPM/parentFormComponent';
 
 
-export default class Students extends Component {
+export default class TeachersStudents extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-
+      _id:  window.location.href.split('/')[window.location.href.split('/').length-1]
     }
   }
+
  
 
 
@@ -24,10 +24,13 @@ export default class Students extends Component {
     let state = app.state;
     let componentList = state.componentList;
     let styles =state.styles;
+    let student = componentList.getComponent("student", this.state._id);
 
     return (
-      <div><h1>students</h1>
-      <StudentCard app={app} />
+      <div><h1>teacher students</h1>
+      <MapComponent app={app} name="student" filter={{search:this.state._id, attribute:"collection"}}  cells={[{img:"picURL"}, ["firstName", "lastName"], "_id", "delete", ]} linkOptions={{path:["/student/"], cells:[0,1,2]}} />
+
+
       </div>
       // <div style={{width:"100vw", paddingTop: "10px"}}>
       //     <ParentFormComponent style={{height:"200px", border:"1px solid black"}} type="richEditor" name="html" app={app} prepareOnClick={{operation: "cleanJsonPrepare", operate:"addadventureLog"}} obj={{owner: "123", type:"adventureLog"}} />

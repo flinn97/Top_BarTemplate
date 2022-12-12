@@ -3,7 +3,7 @@ import "../App.css"
 import MapComponent from './mapComponent';
 
 
-export default class Goals extends Component {
+export default class Users extends Component {
   constructor(props) {
     super(props);
 
@@ -21,11 +21,11 @@ export default class Goals extends Component {
     let componentList=state.componentList;
     let opps = state.opps;
     return (
-      <div><h1>goals</h1>
-            <MapComponent app={app} name="goal" cells={["title", "description",  "delete" ]} />
+      <div><h1>Users</h1>
+            <MapComponent app={app} name="user" cells={[{img: "picURL"}, "firstName", "lastName", "_id", "email",  "delete" ]} linkOptions={{cells:[0,1,2, 3, 4], path:["/teacherstudents/"]}}/>
 
       </div>
-      // <div style={{width:"100vw", paddingTop: "10px"}}>
+      // <div style={{width:"100vw", paddingTop: "10px"}}>0
       //     <div onClick= {dispatch.bind(this, { operation: "cleanPrepare", operate: "addcharacter" , myswitch: "upload", uploadKey:"add" })}> Add Character</div>
       //     <div >{list?.map((character, index)=>
           

@@ -71,7 +71,7 @@ export default class Login extends Component {
                     
                             <label htmlFor="lastName"><div style={{fontFamily: styles?.fonts?.fontNormal, marginRight: styles?.margins?.marginSmallW, fontSize: styles?.fonts?.fontHeader1,}}>Email</div></label>
                             <input style ={{fontFamily: styles?.fonts?.fontNormal, height: "3vh", width: "18vw",
-                    borderWidth: styles.mySpawn.border ,}} type="text" id="last"   onChange={this.handleChange} name="email"/>
+                    borderWidth: styles?.mySpawn?.border ,}} type="text" id="last"   onChange={this.handleChange} name="email"/>
                         </div>
                         <div style={{marginTop:"2vh", marginBottom:styles?.margins?.marginSmallH}} >
                             <label htmlFor="lastName"><div style={{fontFamily: styles?.fonts?.fontNormal,marginRight: styles?.margins?.marginSmallW, fontSize: styles?.fonts?.fontHeader1,}}>Password</div></label>

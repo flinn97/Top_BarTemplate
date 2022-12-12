@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import "../App.css"
+import MapComponent from './mapComponent';
 // import LogMap from './logMap';
 // import DelButton from '../componentListNPM/componentForms/deleteButton';
 // import RunButton from '../componentListNPM/componentForms/runButton';
@@ -24,7 +25,14 @@ export default class Chat extends Component {
     let list = state.componentList?.getList("journalLog")
 
     return (
-      <div>chat</div>
+      <div>chat
+
+<MapComponent app={app} name="chatroom" cells={["owner", "name",  "delete" ]} />
+<h1>Posts</h1>
+<MapComponent app={app} name="post" cells={["owner", "content", "chatroom",  "delete" ]} />
+
+
+      </div>
       // <div style={{width:"100vw", paddingTop: "10px"}}>
       //     <ParentFormComponent style={{height:"200px", border:"1px solid black"}} type="richEditor" name="html" app={app} prepareOnClick={{operation: "cleanJsonPrepare", operate:"addjournalLog"}} obj={{owner: "123", type:"journalLog"}} />
       //     <RunButton app={app} />

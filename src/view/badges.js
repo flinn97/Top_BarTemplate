@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import "../App.css"
+import MapComponent from './mapComponent';
 // import LogMap from './logMap';
 // import DelButton from '../componentListNPM/componentForms/deleteButton';
 // import RunButton from '../componentListNPM/componentForms/runButton';
@@ -24,7 +25,11 @@ export default class Badge extends Component {
     let list = state.componentList?.getList("journalLog")
 
     return (
-      <div>badge</div>
+      <div>badge
+
+<MapComponent app={app} name="badge" cells={["title", "description",  "delete" ]} />
+
+      </div>
       // <div style={{width:"100vw", paddingTop: "10px"}}>
       //     <ParentFormComponent style={{height:"200px", border:"1px solid black"}} type="richEditor" name="html" app={app} prepareOnClick={{operation: "cleanJsonPrepare", operate:"addjournalLog"}} obj={{owner: "123", type:"journalLog"}} />
       //     <RunButton app={app} />

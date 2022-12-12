@@ -2,17 +2,17 @@ import './App.css';
 import { Component } from 'react';
 import Dispatch from './dispatch.js';
 import { forFactory } from './models/myComponents';
-
+import styleService from './services/styleService';
 import ComponentListInterface from './componentListNPM/componentListInterface';
 import auth from './services/auth';
 import Students from './view/students';
 import Goals from './view/goals';
-import styleService from './services/styleService';
 import Homework from './view/homework';
 import Badge from './view/badges';
 import Chat from './view/chat';
 import Login from './componentListNPM/componentForms/login';
 import Notes from './view/teacherNotes';
+import Users from './view/users';
 //fonts
 
 
@@ -50,6 +50,7 @@ export default class App extends Component {
       myswitch: "home",
       switchCase:[
         {path:"/", comp:Students, name: "Students" },
+        {path: "/users", comp:Users, name: "Users"},
         {path: "/goals", comp:Goals, name: "Goals"},
         {path: "/homework", comp:Homework, name:"Homework"},
         {path:"/badge", comp:Badge, name: "Badges" },
@@ -115,7 +116,7 @@ handleChange = (event) => {
           
          await this.state.componentListInterface.getFactory().registerComponents({name:key, component:obj[key]});
         }
-        let data = auth.getJsonDatabase(list);
+        // let data = auth.getJsonDatabase(list);
         
         // let user = await Auth.getuser("admin@gmail.com", null, componentList);
         // await this.setState({
@@ -172,8 +173,8 @@ handleChange = (event) => {
        
       flexDirection:"column"}}>
         
-      {/* {this.state.login?(<Login app={{state:this.state, dispatch:this.dispatch}}/>):( */}
-      {this.state.dataRetrieved&&(
+      {this.state.login?(<Login app={{state:this.state, dispatch:this.dispatch}}/>):(
+      // {this.state.dataRetrieved&&(
       <Dispatch app={{run:this.run, state:this.state, handlechange:this.handleChange, dispatch:this.dispatch, factory:this.factory}} />)}
       {/* )} */}
     </div>

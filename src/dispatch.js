@@ -9,6 +9,8 @@ import CharacterStrategy from './view/badges';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import Students from './view/students';
 import Goals from './view/goals';
+import StudentProfile from './view/studentProfile';
+import TeachersStudents from './view/teachersStudents';
 // import DeletePopup from './view/deletePopup';
 // import KeepDel from './view/keepDelete';
 
@@ -42,7 +44,8 @@ export default class Dispatch extends Component {
       {state.switchCase?.map((obj, index)=>
         <Route path={obj.path} element={<obj.comp app={app}/>} />
       )}
-      <Route path={"/student/:id"} element={<CharacterStrategy app={app}/>} />
+      <Route path={"/student/:id"} element={<StudentProfile app={app}/>} />
+      <Route path={"/teacherstudents/:id"} element={<TeachersStudents app={app}/>} />
 
 
       {/* <Route path='/' element={<Character app={app} />} />
