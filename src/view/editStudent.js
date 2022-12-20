@@ -1,7 +1,9 @@
 import { Component } from 'react';
 import "../App.css"
-import MapComponent from '../view/mapComponent';
-import ParentFormComponent from './parentFormComponent';
+import ParentFormComponent from '../componentListNPM/parentFormComponent';
+import MapComponent from './mapComponent';
+// ipmort ParentFormComponent\
+// import ParentFormComponent from './parentFormComponent';
 
 
 export default class Card extends Component {
@@ -33,6 +35,7 @@ export default class Card extends Component {
       biggestCardColorTab: <BiggestCardColorTab app ={app} />,
       biggerCardColorTab: <BiggerCardColorTab app ={app} />,
       bigCardColorTab: <BigCardColorTab app ={app} />,
+      biggestCardPopup: <BiggestCardPopup app = {app} />
 
 
     
@@ -46,19 +49,44 @@ export default class Card extends Component {
     )
   }
 }
+import { Component } from 'react';
+import ParentFormComponent from '../componentListNPM/parentFormComponent';
+
 class MainContent extends Component{
   constructor(props) {
     super(props);
   }
+  
   render(){
     let app = this.props.app;
     let dispatch = app.dispatch;
     let state = app.state;
     let componentList = state.componentList;
     let styles =state.styles;
+    let student= state.currentComponent;
 
     return(
-    <div></div>
+    <div>
+      <ParentFormComponent type="photoUpload" obj={student} name="picURL" />
+
+      <ParentFormComponent obj={student} name="parent" label="parent"/>
+      <ParentFormComponent obj={student} name="address" label="address" />
+
+      <ParentFormComponent obj={student} name="phone" label="phone" />
+      <ParentFormComponent obj={student} name="firstName" label="firstName" />
+      <ParentFormComponent obj={student} name="lastName" label="lastName" />
+      <ParentFormComponent obj={student} name="about" label="about" />
+      <ParentFormComponent obj={student} name="email" label="email"  />
+      <ParentFormComponent type="switch" obj={student} name="time" label="time"  />
+      <ParentFormComponent type="switch" obj={student} name="check" label="check"  />
+      <ParentFormComponent type="switch" obj={student} name="trackTime" label="trackTime"  />
+      <ParentFormComponent type="switch" obj={student} name="starpoints" label="starpoints"  />
+      <ParentFormComponent type="timePick" obj={student} name="days" />
+      <ParentFormComponent type="linkObjects" obj={student} objType="student" name="syncedStudents" />
+      <ParentFormComponent type="run" obj={student} />
+
+
+    </div>
       )
   }
 }

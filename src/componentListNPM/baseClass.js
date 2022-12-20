@@ -12,7 +12,7 @@ export default class BaseClass {
     setCompState(obj, callBack){
     this.json={...this.json, ...obj};
     if(callBack){
-        callBack();
+        callBack(this);
     }
     }
 

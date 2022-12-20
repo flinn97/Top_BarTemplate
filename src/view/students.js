@@ -1,10 +1,7 @@
 import { Component } from 'react';
 import "../App.css"
-import MapComponent from './mapComponent';
 import StudentCard from './studentCard';
-// import DelButton from '../componentListNPM/componentForms/deleteButton';
-// import RunButton from '../componentListNPM/componentForms/runButton';
-// import ParentFormComponent from '../componentListNPM/parentFormComponent';
+
 
 
 export default class Students extends Component {
@@ -27,25 +24,9 @@ export default class Students extends Component {
 
     return (
       <div><h1>students</h1>
-      <StudentCard app={app} />
+      <StudentCard app={app} type="bigCard" theme="spawn" />
       </div>
-      // <div style={{width:"100vw", paddingTop: "10px"}}>
-      //     <ParentFormComponent style={{height:"200px", border:"1px solid black"}} type="richEditor" name="html" app={app} prepareOnClick={{operation: "cleanJsonPrepare", operate:"addadventureLog"}} obj={{owner: "123", type:"adventureLog"}} />
-      //     <RunButton app={app} />
-      //     <div >{list?.map((log, index)=>
-          
-      //     <div ><div onClick={()=>{
-      //       this.setState({
-      //         [index+"edit"]:!this.state[index+"edit"]})
-      //         dispatch({operate: "update", operation: "cleanPrepare", obj: log})
-      //       }
-            
-          
-      //     }>edit</div> <DelButton obj={log}/> {this.state[index+ "edit"]?(  <>       
-      //       <ParentFormComponent style={{height:"200px", border:"1px solid black"}} type="richEditor" name="html" app={app}  obj={log} /><RunButton onChange={()=>{this.setState({[index+"edit"]:false})}} app={app} /></> 
-      //       ):( <div dangerouslySetInnerHTML={{__html: log.getJson().html}}  />)}</div>
-      //     )}</div>
-      // </div>
+
     )
   }
 }

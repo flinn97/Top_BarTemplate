@@ -4,6 +4,7 @@ import DelButton from '../componentListNPM/componentForms/deleteButton';
 import RunButton from '../componentListNPM/componentForms/runButton';
 import ParentFormComponent from '../componentListNPM/parentFormComponent';
 import { Link } from 'react-router-dom';
+import MapThemeFactory from '../componentListNPM/themes/mapThemes/mapThemeFactory';
 
 
 export default class MapComponent extends Component {
@@ -13,43 +14,7 @@ export default class MapComponent extends Component {
     this.cellMap2 = this.cellMap2.bind(this);
 
     this.state = {
-      containerStyle: {
-        default: this.props.cStyle? {...this.props.cStyle}: {display:'flex', flexDirection:"column"},
-        row: {display:'flex', flexDirection:"row"},
-        wrapRow:{ display:'flex', flexDirection:"row", flexWrap:"wrap"},
-        wrapColumn:{ display:'flex', flexDirection:"column", flexWrap:"wrap"},
-      },
-      sectionStyle:{
-        default: this.props.sStyle? {...this.props.sStyle}: {display:'flex', flexDirection:"row"},
-        column: {display:'flex', flexDirection:"column"},
-        wrapRow:{ display:'flex', flexDirection:"row", flexWrap:"wrap"},
-        wrapColumn:{ display:'flex', flexDirection:"column", flexWrap:"wrap"},
-        
-      },
-      cellStyle:{
-        default: this.props.cStyle? {...this.props.cStyle}: {display:"flex", justifyContent:"center", alignItems:"center", marginLeft:"5px"},
-
-      },
-      imgStyle:{
-        default: this.props.iStyle?{...this.props.iStyle} : {width:'10vw', height:"10vw", borderRadius:"50%"}
-      },
-      theme:{
-        horizontal:{
-          containerStyle:{
-            display:'flex', flexDirection:"column"
-          },
-          sectionStyle:{
-            display:'flex', flexDirection:"row"
-          },
-          cellStyle:{
-            display:"flex", justifyContent:"center", alignItems:"center", marginLeft:"5px"
-          },
-          imgStyle:{
-            default: this.props.iStyle?{...this.props.iStyle} : {width:'10vw', height:"10vw", borderRadius:"50%"}
-          },
-        },
-       
-      }
+      f: new MapThemeFactory()
 
 
     }
@@ -59,10 +24,31 @@ export default class MapComponent extends Component {
     let dispatch = app.dispatch;
     let state = app.state;
     let componentList = state.componentList;
-    let styles =state.styles;
+    let f = this.state.f;
+    let styles =  f.getMapThemeFactory().default;
+    if(this.props.theme){
+      styles= f.getMapThemeFactory()[this.props.theme]
+    }
     let inputTypes=["text", "textArea", "richEditor"];
-    return <div style={this.props.sectionStyle? this.state.sectionStyle[this.props.sectionStyle]: this.props.theme? this.state[this.props.theme].sectionStyle: this.state.sectionStyle.default } key={index}> 
-    {arr.map((c, index)=><div style={this.props.cellStyle?this.state.cellStyle[this.props.cellStyle]: this.props.theme? this.state[this.props.theme].cellStyle : this.state.cellStyle.default}> 
+    let mapThemes=["default", "keep", "mySpawn", "calendar", "defaultBorder", "defaultTable", "defaultAlternate", ];
+
+    return <div style={this.props.iSectionStyle? //if
+    this.props.iSectionStyle: //then
+  this.props.iSectionTheme? //else if
+    mapThemes.includes(iSectionTheme)?//if
+     f.getMapThemeFactory()[this.props.iSectionTheme]?.iSectionStyle?.default: //then
+     styles.iSectionStyle[this.props.iSectionTheme]://otherwise
+  styles.iSectionStyle.default//otherwise
+ } key={index}> 
+    {arr.map((c, index)=><div style={
+      this.props.iCellStyle? //if
+      {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...this.props.iCellStyle}: //then
+    this.props.iCellTheme? //else if
+      mapThemes.includes(iCellTheme)?//if
+       {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...f.getMapThemeFactory()[this.props.iCellTheme]?.iCellStyle?.default}: //then
+       {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...styles.iCellStyle[this.props.iCellTheme]}://otherwise
+    {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...styles.iCellStyle.default}//otherwise
+      }> 
       
       
       {/* IS CELL JUST AN ATTRIBUTE */}
@@ -73,31 +59,41 @@ export default class MapComponent extends Component {
       })
       }>
          {this.props.innerlinkOptions?.cells?.includes(index)?(
-          <Link to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
-      <div style={{color:c.style?.color, fontSize:c.style?.fontSize}}>{item.getJson()[c]}</div></Link>):(<div style={{color:c.style?.color, fontSize:c.style?.fontSize}}>{item.getJson()[c]}</div>)}</div>
+          <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
+      <div style={{color:c.style?.color, fontSize:c.style?.fontSize, }}>{item.getJson()[c]}</div></Link>):(<div style={{color:c.style?.color, fontSize:c.style?.fontSize, }}>{item.getJson()[c]}</div>)}</div>
       )}
 
 
       {/* IS CELL A SPECIAL WORD */}
       {(c==="delete") &&(
-      <div style={{...this.props.delOptions?.style}} onClick={this.props.delOptions?.func? this.props.delOptions.func: ()=>{componentList.getOperationsFactory().cleanPrepareRun({del:item})}}>
+      <div style={
+          this.props.delOptions?.style?
+            {cursor:"pointer", ...this.props.delOptions?.style }:
+          this.props.delOptions?.theme?
+          {cursor:"pointer", ...f.getMapThemeFactory()[this.props.delOptions?.theme].delstyle }: 
+          {cursor:"pointer", ...styles.delstyle }} onClick={this.props.delOptions?.func? this.props.delOptions.func: ()=>{componentList.getOperationsFactory().cleanPrepareRun({del:item})}}>
        {this.props.linkOptions?.cells?.includes(index)?(
-       <Link to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
-        {this.props.delOptions?.picURL?(<img style={{...this.state.delStyle}} src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}
+       <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
+        {this.props.delOptions?.picURL?(<img style={{width:"20px", height:"20px"}} src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}
        </Link>):(
-         <>{this.props.delOptions?.picURL?(<img style={{...this.state.delStyle}}  src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}</>
+         <>{this.props.delOptions?.picURL?(<img style={{width:"20px", height:"20px"}}  src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}</>
         )}
         
         </div>
         )}
 
         {c==="edit"&&(
-      <div style={{...this.props.editOptions?.style}} onClick={this.props.editOptions?.func&& this.props.editOptions.func}>
+      <div style={
+        this.props.editOptions?.style?
+          {cursor:"pointer", ...this.props.editOptions?.style }:
+        this.props.editOptions?.theme?
+        {cursor:"pointer", ...f.getMapThemeFactory()[this.props.editOptions?.theme].editstyle }: 
+        {cursor:"pointer", ...styles.editstyle }} onClick={this.props.editOptions?.func&& this.props.editOptions.func}>
        {this.props.innerlinkOptions?.cells?.includes(index)?(
-       <Link to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
-        {this.props.editOptions?.picURL?(<img style={{...this.state.editStyle}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}
+       <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
+        {this.props.editOptions?.picURL?(<img style={{width:"20px", height:"20px"}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}
        </Link>):(
-         <>{this.props.editOptions?.picURL?(<img  style={{...this.state.editStyle}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}</>
+         <>{this.props.editOptions?.picURL?(<img  style={{width:"20px", height:"20px"}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}</>
         )}
         
         </div>
@@ -109,9 +105,19 @@ export default class MapComponent extends Component {
         this.props.innerFunctions.functions[this.props.innerFunctions?.cells.indexOf(index)](item);
       })}>
         {this.props.innerlinkOptions?.cells?.includes(index)?(
-          <Link to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
+          <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
     
-      <img style={c.imgStyle? c.imgStyle: this.props.theme? this.state[this.props.theme].imgStyle: this.state.imgStyle.default} src={item.getJson()[c.img]} /></Link>):(<img style={c.imgStyle? c.imgStyle: this.props.theme? this.state[this.props.theme].imgStyle: this.state.imgStyle.default} src={item.getJson()[c.img]} />)} </div>
+      <img style={c.imgStyle? c.imgStyle: 
+        this.props.imgStyle? this.props.imgStyle: 
+        this.props.imgTheme? mapThemes.includes(this.props.imgTheme)?
+        f.getMapThemeFactory()[this.props.imgTheme]?.imgStyle?.default:
+        styles.imgStyle[this.props.imgTheme]:
+        styles.imgStyle.default} /></Link>):(<img style={c.imgStyle? c.imgStyle: 
+          this.props.imgStyle? this.props.imgStyle: 
+          this.props.imgTheme? mapThemes.includes(this.props.imgTheme)?
+          f.getMapThemeFactory()[this.props.imgTheme]?.imgStyle?.default:
+          styles.imgStyle[this.props.imgTheme]:
+          styles.imgStyle.default} src={item.getJson()[c.img]} />)} </div>
       )}
 
 
@@ -121,7 +127,7 @@ export default class MapComponent extends Component {
         this.props.innerFunctions.functions[this.props.innerFunctions?.cells.indexOf(index)](item);
       })}>
        {this.props.innerlinkOptions?.cells?.includes(index)?(
-        <Link to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
+        <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
   <c.custom props={{...c.props}} obj={item} style={{...c.style}}/></Link>):(<c.custom props={{...c.props}} obj={item} style={{...c.style}}/>)}</div>)}
 
       {/* IS CELL AN INPUTTYPE */}
@@ -131,7 +137,7 @@ export default class MapComponent extends Component {
           this.props.innerFunctions.functions[this.props.innerFunctions?.cells.indexOf(index)](item);
         })}>
       {this.props.innerlinkOptions?.cells?.includes(index)?(
-        <Link to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
+        <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
   <ParentFormComponent type={[Object.keys(c)[0]]} obj = {item} name={c[Object.keys(c)[0]]}/></Link>):(<ParentFormComponent type={[Object.keys(c)[0]]} obj = {item} name={c[Object.keys(c)[0]]}/>)}
   </div>)}
   {/* IS CELL A LIST OF CELLS */}
@@ -141,7 +147,7 @@ export default class MapComponent extends Component {
       })}>
           <> 
           {this.props.innerlinkOptions?.cells?.includes(index)?(
-            <Link to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
+            <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.innerlinkOptions?.path[this.props.innerlinkOptions.cells.indexOf(index)]? this.props.innerlinkOptions.path[this.props.innerlinkOptions.cells.indexOf(index)]: this.props.innerlinkOptions.path[this.props.innerlinkOptions.path.length-1]+ item.getJson()._id}>
       
           
             {this.cellMap2(item, index, c)}
@@ -165,9 +171,198 @@ export default class MapComponent extends Component {
     let dispatch = app.dispatch;
     let state = app.state;
     let componentList = state.componentList;
-    let styles =state.styles;
+    let f = this.state.f;
+    let styles =  f.getMapThemeFactory().default;
+    if(this.props.theme){
+      styles= f.getMapThemeFactory()[this.props.theme]
+    }
     let inputTypes=["text", "textArea", "richEditor"];
-    return ""}
+    let mapThemes=["default", "keep", "mySpawn", "calendar", "defaultBorder", "defaultTable", "defaultAlternate", ];
+    let html = <>
+    
+      {this.props.cells.map((c, index)=><div style={this.props.cellStyle? //if
+             this.props.cellStyle: //then
+           this.props.cellTheme? //else if
+             mapThemes.includes(cellTheme)?//if
+              f.getMapThemeFactory()[this.props.cellTheme]?.cellStyle?.default: //then
+              styles.cellStyle[this.props.cellTheme]://otherwise
+           styles.cellStyle.default//otherwise
+      }> 
+        
+        
+        {/* IS CELL JUST AN ATTRIBUTE */}
+        {((Object.prototype.toString.call(c) === "[object String]" ||c.json) && c!=="delete" && c!=="edit") && (<div style={c.style? //if
+        c.style://then
+        this.props.innerCellStyle?//else if
+             this.props.innerCellStyle: //then
+           this.props.innerCellTheme? //else if
+             mapThemes.includes(innerCellTheme)?//if
+              f.getMapThemeFactory()[this.props.innerCellTheme]?.innerCellStyle?.default: //then
+              styles.innerCellStyle[this.props.innerCellTheme]://otherwise
+           styles.innerCellStyle.default//otherwise
+      }
+          onClick={this.props.functions?.cells.includes(index)&&(
+      ()=>{
+        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
+      })
+          }>
+           {this.props.linkOptions?.cells?.includes(index)?(
+            <Link className="mapLink" style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={
+              this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? 
+              this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}
+              >
+        <div style={{color:c.style?.color, fontSize:c.style?.fontSize}}>{item.getJson()[c]}</div></Link>):(<div style={{color:c.style?.color, fontSize:c.style?.fontSize, cursor: this.props.functions?.cells.includes(index)&&"pointer"}}>{item.getJson()[c]}</div>)}</div>
+        )}
+  
+  
+        {/* IS CELL A SPECIAL WORD */}
+        {(c==="delete") &&(
+        <div style={
+          this.props.delOptions?.style?
+            {cursor:"pointer", ...this.props.delOptions?.style }:
+          this.props.delOptions?.theme?
+          {cursor:"pointer", ...f.getMapThemeFactory()[this.props.delOptions?.theme].delstyle }: 
+          {cursor:"pointer", ...styles.delstyle }} onClick={this.props.delOptions?.func? this.props.delOptions.func: ()=>{componentList.getOperationsFactory().cleanPrepareRun({del:item})}}>
+         {this.props.linkOptions?.cells?.includes(index)?(
+         <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
+          {this.props.delOptions?.picURL?(<img style={{width:"20px", height:"20px"}} src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}
+         </Link>):(
+           <>{this.props.delOptions?.picURL?(<img style={{width:"20px", height:"20px"}}  src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}</>
+          )}
+          
+          </div>
+          )}
+  
+          {c==="edit"&&(
+        <div style={
+          this.props.editOptions?.style?
+            {cursor:"pointer", ...this.props.editOptions?.style }:
+          this.props.editOptions?.theme?
+          {cursor:"pointer", ...f.getMapThemeFactory()[this.props.editOptions?.theme].editstyle }: 
+          {cursor:"pointer", ...styles.editstyle }}
+        onClick={this.props.editOptions?.func&& this.props.editOptions.func}>
+         {this.props.linkOptions?.cells?.includes(index)?(
+         <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
+          {this.props.editOptions?.picURL?(<img style={{width:"20px", height:"20px"}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}
+         </Link>):(
+           <>{this.props.editOptions?.picURL?(<img  style={{width:"20px", height:"20px"}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}</>
+          )}
+          
+          </div>
+          )}
+  
+        {/* IS CELL AN IMG */}
+        {c.img && (<div style={c.style? //if
+        c.style://then
+        this.props.innerCellStyle?//else if
+             this.props.innerCellStyle: //then
+           this.props.innerCellTheme? //else if
+             mapThemes.includes(innerCellTheme)?//if
+              f.getMapThemeFactory()[this.props.innerCellTheme]?.cellStyle?.default: //then
+              styles.innerCellStyle[this.props.innerCellTheme]://otherwise
+           styles.innerCellStyle.default//otherwise
+      } onClick={this.props.functions?.cells.includes(index)&&(
+      ()=>{
+        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
+      })}>
+          {this.props.linkOptions?.cells?.includes(index)?(
+            <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
+      
+        <img style={c.imgStyle? c.imgStyle: 
+        this.props.imgStyle? this.props.imgStyle: 
+        this.props.imgTheme? mapThemes.includes(this.props.imgTheme)?
+        f.getMapThemeFactory()[this.props.imgTheme]?.imgStyle?.default:
+        styles.imgStyle[this.props.imgTheme]:
+        styles.imgStyle.default} src={item.getJson()[c.img]} /></Link>):(<img style={
+          c.imgStyle? {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...c.imgStyle}: 
+          this.props.imgStyle? {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...this.props.imgStyle}: 
+          this.props.imgTheme? mapThemes.includes(this.props.imgTheme)?
+          {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...f.getMapThemeFactory()[this.props.imgTheme]?.imgStyle?.default}:
+          {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...styles.imgStyle[this.props.imgTheme]}:
+          {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...styles.imgStyle.default}} src={item.getJson()[c.img]} />)} </div>
+        )}
+  
+  
+        {/* IS CELL A CUSTOM REACT CLASS */}
+        {c.custom && (<div onClick={this.props.functions?.cells.includes(index)&&(
+      ()=>{
+        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
+      })}>
+         {this.props.linkOptions?.cells?.includes(index)?(
+          <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
+    <c.custom props={{...c.props}} obj={item} style={c.style? //if
+        c.style://then
+        this.props.innerCellStyle?//else if
+             this.props.innerCellStyle: //then
+           this.props.innerCellTheme? //else if
+             mapThemes.includes(innerCellTheme)?//if
+              f.getMapThemeFactory()[this.props.innerCellTheme]?.innerCellStyle?.default: //then
+              styles.innerCellStyle[this.props.innerCellTheme]://otherwise
+           styles.innerCellStyle.default//otherwise
+      }/></Link>):(<c.custom props={{...c.props}} obj={item} style={c.style? //if
+      c.style://then
+      this.props.innerCellStyle?//else if
+           this.props.innerCellStyle: //then
+         this.props.innerCellTheme? //else if
+           mapThemes.includes(innerCellTheme)?//if
+            f.getMapThemeFactory()[this.props.innerCellTheme]?.innerCellStyle?.default: //then
+            styles.innerCellStyle[this.props.innerCellTheme]://otherwise
+         styles.innerCellStyle.default//otherwise
+    }/>)}</div>)}
+  
+        {/* IS CELL AN INPUTTYPE */}
+        {inputTypes.includes(Object.keys(c)[0]) &&(
+        <div style={c.style? //if
+        c.style://then
+        this.props.innerCellStyle?//else if
+             this.props.innerCellStyle: //then
+           this.props.innerCellTheme? //else if
+             mapThemes.includes(innerCellTheme)?//if
+              f.getMapThemeFactory()[this.props.innerCellTheme]?.innerCellStyle?.default: //then
+              styles.innerCellStyle[this.props.innerCellTheme]://otherwise
+           styles.innerCellStyle.default//otherwise
+      } onClick={this.props.functions?.cells.includes(index)&&(
+          ()=>{
+            this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
+          })}>
+        {this.props.linkOptions?.cells?.includes(index)?(
+          <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
+    <ParentFormComponent type={[Object.keys(c)[0]]} obj = {item} name={c[Object.keys(c)[0]]}/></Link>):(<ParentFormComponent type={[Object.keys(c)[0]]} obj = {item} name={c[Object.keys(c)[0]]}/>)}
+    </div>)}
+        {/* IS CELL A LIST OF CELLS */}
+        {Array.isArray(c) &&(<div style={
+          this.props.innerArrOptions?.style? //if
+        {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...this.props.innerArrOptions?.style}://then
+        this.props.innerCellStyle?//else if
+             {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...this.props.innerCellStyle}: //then
+           this.props.innerCellTheme? //else if
+             mapThemes.includes(innerCellTheme)?//if
+              {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...f.getMapThemeFactory()[this.props.innerCellTheme].innerCellStyle.default}: //then
+              {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...styles.innerCellStyle[this.props.innerCellTheme]}://otherwise
+           {cursor: this.props.functions?.cells.includes(index)&&"pointer", ...styles.innerCellStyle.default}//otherwise
+      }
+        onClick={this.props.functions?.cells.includes(index)&&(
+      ()=>{
+        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
+      })}>
+          <> 
+          {this.props.linkOptions?.cells?.includes(index)?(
+            <Link style={this.props.linkOptions?.styles[index]? this.props.linkOptions?.styles[index]: state.linkStyleDefault} to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
+      
+          
+            {this.cellMap2(item, index, c)}
+            
+        
+        </Link>):(<div>
+            {this.cellMap2(item, index, c)}
+            
+        </div>)}
+        </>
+        </div>)}
+      </div>)}
+      </>;
+
+    return html}
 
 
 
@@ -177,221 +372,63 @@ export default class MapComponent extends Component {
     let dispatch = app.dispatch;
     let state = app.state;
     let componentList = state.componentList;
-    let styles =state.styles;
+    let f = this.state.f;
+    let styles =  f.getMapThemeFactory().default;
+    if(this.props.theme){
+      styles= f.getMapThemeFactory()[this.props.theme]
+    }
     let inputTypes=["text", "textArea", "richEditor"];
+    let mapThemes=["default", "keep", "mySpawn", "calendar", "defaultBorder", "defaultTable", "defaultAlternate", ];
+
 
     let types={
       //InnerMap type
       innerMap:
-      <div style={this.props.containerStyle? this.state.containerStyle[this.props.containerStyle]: this.props.theme? this.state[this.props.theme].containerStyle: this.state.containerStyle.default}>
-      {componentList.getList(this.props.name).map((item, index)=>
-      {this.cellMap(item, index)}
-      )}
+      <div> 
       </div>,
 
       //Default Type
-      default:<div style={this.props.containerStyle? this.state.containerStyle[this.props.containerStyle]: this.state.containerStyle.default}>
+      default:<div style={
+        this.props.containerStyle? //if
+          this.props.containerStyle: //then
+        this.props.containerTheme? //else if
+          mapThemes.includes(containerStyle)? //if
+           f.getMapThemeFactory()[this.props.containerTheme]?.containerStyle?.default: //then
+           styles.containerStyle[this.props.containerTheme]://otherwise
+        styles.containerStyle.default//otherwise
+        }>
       {componentList.getList(this.props.name).map((item, index)=>
-      <div style={this.props.sectionStyle? this.state.sectionStyle[this.props.sectionStyle]: this.props.theme? this.state[this.props.theme].sectionStyle: this.state.sectionStyle.default } key={index}> 
-    
-      {this.props.cells.map((c, index)=><div style={this.props.cellStyle?this.state.cellStyle[this.props.cellStyle]: this.props.theme? this.state[this.props.theme].cellStyle : this.state.cellStyle.default}> 
-        
-        
-        {/* IS CELL JUST AN ATTRIBUTE */}
-        {((Object.prototype.toString.call(c) === "[object String]" ||c.json) && c!=="delete" && c!=="edit") && (<div style={{...c.style}} onClick={this.props.functions?.cells.includes(index)&&(
-      ()=>{
-        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-      })
-          }>
-           {this.props.linkOptions?.cells?.includes(index)?(
-            <Link to={
-              this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? 
-              this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}
-              >
-        <div style={{color:c.style?.color, fontSize:c.style?.fontSize}}>{item.getJson()[c]}</div></Link>):(<div style={{color:c.style?.color, fontSize:c.style?.fontSize}}>{item.getJson()[c]}</div>)}</div>
-        )}
-  
-  
-        {/* IS CELL A SPECIAL WORD */}
-        {(c==="delete") &&(
-        <div style={{...this.props.delOptions?.style}} onClick={this.props.delOptions?.func? this.props.delOptions.func: ()=>{componentList.getOperationsFactory().cleanPrepareRun({del:item})}}>
-         {this.props.linkOptions?.cells?.includes(index)?(
-         <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-          {this.props.delOptions?.picURL?(<img style={{...this.state.delStyle}} src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}
-         </Link>):(
-           <>{this.props.delOptions?.picURL?(<img style={{...this.state.delStyle}}  src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}</>
-          )}
-          
-          </div>
-          )}
-  
-          {c==="edit"&&(
-        <div style={{...this.props.editOptions?.style}} onClick={this.props.editOptions?.func&& this.props.editOptions.func}>
-         {this.props.linkOptions?.cells?.includes(index)?(
-         <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-          {this.props.editOptions?.picURL?(<img style={{...this.state.editStyle}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}
-         </Link>):(
-           <>{this.props.editOptions?.picURL?(<img  style={{...this.state.editStyle}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}</>
-          )}
-          
-          </div>
-          )}
-  
-        {/* IS CELL AN IMG */}
-        {c.img && (<div style={{...c.style}} onClick={this.props.functions?.cells.includes(index)&&(
-      ()=>{
-        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-      })}>
-          {this.props.linkOptions?.cells?.includes(index)?(
-            <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-      
-        <img style={c.imgStyle? c.imgStyle: this.props.theme? this.state[this.props.theme].imgStyle: this.state.imgStyle.default} src={item.getJson()[c.img]} /></Link>):(<img style={c.imgStyle? c.imgStyle: this.props.theme? this.state[this.props.theme].imgStyle: this.state.imgStyle.default} src={item.getJson()[c.img]} />)} </div>
-        )}
-  
-  
-        {/* IS CELL A CUSTOM REACT CLASS */}
-        {c.custom && (<div onClick={this.props.functions?.cells.includes(index)&&(
-      ()=>{
-        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-      })}>
-         {this.props.linkOptions?.cells?.includes(index)?(
-          <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-    <c.custom props={{...c.props}} obj={item} style={{...c.style}}/></Link>):(<c.custom props={{...c.props}} obj={item} style={{...c.style}}/>)}</div>)}
-  
-        {/* IS CELL AN INPUTTYPE */}
-        {inputTypes.includes(Object.keys(c)[0]) &&(
-        <div style={{...c.style}} onClick={this.props.functions?.cells.includes(index)&&(
-          ()=>{
-            this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-          })}>
-        {this.props.linkOptions?.cells?.includes(index)?(
-          <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-    <ParentFormComponent type={[Object.keys(c)[0]]} obj = {item} name={c[Object.keys(c)[0]]}/></Link>):(<ParentFormComponent type={[Object.keys(c)[0]]} obj = {item} name={c[Object.keys(c)[0]]}/>)}
-    </div>)}
-        {/* IS CELL A LIST OF CELLS */}
-        {Array.isArray(c) &&(<div style={{...this.props.innerCell?.style}} onClick={this.props.functions?.cells.includes(index)&&(
-      ()=>{
-        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-      })}>
-          <> 
-          {this.props.linkOptions?.cells?.includes(index)?(
-            <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-      
-          
-            {this.cellMap2(item, index, c)}
-            
-        
-        </Link>):(<div>
-            {this.cellMap2(item, index, c)}
-            
-        </div>)}
-        </>
-        </div>)}
-      </div>)}
-      </div>
+             <div style={this.props.sectionStyle? //if
+             this.props.sectionStyle: //then
+           this.props.sectionTheme? //else if
+             mapThemes.includes(sectionTheme)?//if
+              f.getMapThemeFactory()[this.props.sectionTheme]?.sectionStyle?.default: //then
+              styles.sectionStyle[this.props.sectionTheme]://otherwise
+           styles.sectionStyle.default//otherwise
+      } key={index}> {this.cellMap(item, index)}</div>
+
       )}
       </div>,
 
       // filiterd MAP
-      filteredMap: <div style={this.props.containerStyle? this.state.containerStyle[this.props.containerStyle]: this.state.containerStyle.default}>
+      filteredMap: <div style={ this.props.containerStyle? //if
+      this.props.containerStyle: //then
+    this.props.containerTheme? //else if
+      mapThemes.includes(containerStyle)? //if
+       f.getMapThemeFactory()[this.props.containerTheme]?.containerStyle?.default: //then
+       styles.containerStyle[this.props.containerTheme]://otherwise
+    styles.containerStyle.default//otherwise
+  }>
+        
       {componentList.getList(this.props.name, this.props.filter?.search, this.props.filter?.attribute).map((item, index)=>
-      <div style={this.props.sectionStyle? this.state.sectionStyle[this.props.sectionStyle]: this.props.theme? this.state[this.props.theme].sectionStyle: this.state.sectionStyle.default } key={index}> 
-    
-      {this.props.cells.map((c, index)=><div style={this.props.cellStyle?this.state.cellStyle[this.props.cellStyle]: this.props.theme? this.state[this.props.theme].cellStyle : this.state.cellStyle.default}> 
-        
-        
-        {/* IS CELL JUST AN ATTRIBUTE */}
-        {((Object.prototype.toString.call(c) === "[object String]" ||c.json) && c!=="delete" && c!=="edit") && (<div style={{...c.style}} onClick={this.props.functions?.cells.includes(index)&&(
-      ()=>{
-        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-      })
-          }>
-           {this.props.linkOptions?.cells?.includes(index)?(
-            <Link to={
-              this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? 
-              this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}
-              >
-        <div style={{color:c.style?.color, fontSize:c.style?.fontSize}}>{item.getJson()[c]}</div></Link>):(<div style={{color:c.style?.color, fontSize:c.style?.fontSize}}>{item.getJson()[c]}</div>)}</div>
-        )}
-  
-  
-        {/* IS CELL A SPECIAL WORD */}
-        {(c==="delete") &&(
-        <div style={{...this.props.delOptions?.style}} onClick={this.props.delOptions?.func? this.props.delOptions.func: ()=>{componentList.getOperationsFactory().cleanPrepareRun({del:item})}}>
-         {this.props.linkOptions?.cells?.includes(index)?(
-         <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-          {this.props.delOptions?.picURL?(<img style={{...this.state.delStyle}} src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}
-         </Link>):(
-           <>{this.props.delOptions?.picURL?(<img style={{...this.state.delStyle}}  src={this.props.delOptions.picURL}/>):(<>{this.props.delOptions?.name? this.props.delOptions.name:c}</>)}</>
-          )}
-          
-          </div>
-          )}
-  
-          {c==="edit"&&(
-        <div style={{...this.props.editOptions?.style}} onClick={this.props.editOptions?.func&& this.props.editOptions.func}>
-         {this.props.linkOptions?.cells?.includes(index)?(
-         <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-          {this.props.editOptions?.picURL?(<img style={{...this.state.editStyle}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}
-         </Link>):(
-           <>{this.props.editOptions?.picURL?(<img  style={{...this.state.editStyle}}  src={this.props.editOptions.picURL}/>):(<>{this.props.editOptions?.name? this.props.editOptions.name:c}</>)}</>
-          )}
-          
-          </div>
-          )}
-  
-        {/* IS CELL AN IMG */}
-        {c.img && (<div style={{...c.style}} onClick={this.props.functions?.cells.includes(index)&&(
-      ()=>{
-        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-      })}>
-          {this.props.linkOptions?.cells?.includes(index)?(
-            <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-      
-        <img style={c.imgStyle? c.imgStyle: this.props.theme? this.state[this.props.theme].imgStyle: this.state.imgStyle.default} src={item.getJson()[c.img]} /></Link>):(<img style={c.imgStyle? c.imgStyle: this.props.theme? this.state[this.props.theme].imgStyle: this.state.imgStyle.default} src={item.getJson()[c.img]} />)} </div>
-        )}
-  
-  
-        {/* IS CELL A CUSTOM REACT CLASS */}
-        {c.custom && (<div onClick={this.props.functions?.cells.includes(index)&&(
-      ()=>{
-        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-      })}>
-         {this.props.linkOptions?.cells?.includes(index)?(
-          <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-    <c.custom props={{...c.props}} obj={item} style={{...c.style}}/></Link>):(<c.custom props={{...c.props}} obj={item} style={{...c.style}}/>)}</div>)}
-  
-        {/* IS CELL AN INPUTTYPE */}
-        {inputTypes.includes(Object.keys(c)[0]) &&(
-        <div style={{...c.style}} onClick={this.props.functions?.cells.includes(index)&&(
-          ()=>{
-            this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-          })}>
-        {this.props.linkOptions?.cells?.includes(index)?(
-          <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-    <ParentFormComponent type={[Object.keys(c)[0]]} obj = {item} name={c[Object.keys(c)[0]]}/></Link>):(<ParentFormComponent type={[Object.keys(c)[0]]} obj = {item} name={c[Object.keys(c)[0]]}/>)}
-    </div>)}
-        {/* IS CELL A LIST OF CELLS */}
-        {Array.isArray(c) &&(<div style={{...this.props.innerCell?.style}} onClick={this.props.functions?.cells.includes(index)&&(
-      ()=>{
-        this.props.functions.functions[this.props.functions?.cells.indexOf(index)](item);
-      })}>
-          <> 
-          {this.props.linkOptions?.cells?.includes(index)?(
-            <Link to={this.props.linkOptions?.path[this.props.linkOptions.cells.indexOf(index)]? this.props.linkOptions.path[this.props.linkOptions.cells.indexOf(index)]: this.props.linkOptions.path[this.props.linkOptions.path.length-1]+ item.getJson()._id}>
-      
-          
-            {this.cellMap2(item, index, c)}
-            
-        
-        </Link>):(<div>
-            {this.cellMap2(item, index, c)}
-            
-        </div>)}
-        </>
-        </div>)}
-      </div>)}
-      </div>
+       <div style={this.props.sectionStyle? //if
+       this.props.sectionStyle: //then
+     this.props.sectionTheme? //else if
+       mapThemes.includes(sectionTheme)?//if
+        f.getMapThemeFactory()[this.props.sectionTheme]?.sectionStyle?.default: //then
+        styles.sectionStyle[this.props.sectionTheme]://otherwise
+     styles.sectionStyle.default//otherwise
+    } key={index}> {this.cellMap(item, index)}</div>
       )}
       </div>,
     }

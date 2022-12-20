@@ -1,10 +1,8 @@
 import { Component } from 'react';
 import "../App.css"
 import MapComponent from './mapComponent';
-// import LogMap from './logMap';
-// import DelButton from '../componentListNPM/componentForms/deleteButton';
-// import RunButton from '../componentListNPM/componentForms/runButton';
-// import ParentFormComponent from '../componentListNPM/parentFormComponent';
+import Notes from './teacherNotes';
+
 export default class Homework extends Component {
   constructor(props) {
     super(props);
@@ -22,11 +20,25 @@ export default class Homework extends Component {
     let dispatch = app.dispatch;
     let state = app.state;
     let styles =state.styles;
-    let list = state.componentList?.getList("journalLog")
 
     return (
       <div>hw
       <MapComponent app={app} name="homework" cells={["title", "description", "hwlink", "delete" ]} />
+
+      <MapComponent app={app} name="user" cells={[{img: "picURL"}, ["firstName", "lastName",], "_id", "email",  "delete" ]} linkOptions={{cells:[0,1,2, 3], path:["/teacherstudents/"]}}/>
+      
+      <MapComponent app={app} name="homework" cells={[{json: "title", style:{color:"blue"}}, "description", "hwlink", "delete", "edit" ]} sStyle={{border:"1px solid black"}} 
+      delOptions={{func:(component)=>{console.log('del')}, picURL:"hi.com", name:"del", style:{color:"red"} }}
+      editOptions={{func:(component)=>{console.log('edit')}, picURL:"hi.com", name:"edit", style:{color:"blue"} }}
+      functions={{cells:[0, 1, 2], functions:[(component)=>{console.log('func1')}, (component)=>{console.log('func1')},] }}
+      />
+
+      <MapComponent app={app} name="homework" cells={[<Notes app={app}/>, {textArea: "description"}, "hwlink", "delete" ]} />
+
+
+      
+
+
       </div>
 
       // <div style={{width:"100vw", paddingTop: "10px"}}>

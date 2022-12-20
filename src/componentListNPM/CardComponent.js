@@ -26,6 +26,16 @@ export default class Card extends Component {
     let state = app.state;
     let componentList = state.componentList;
     let styles =state.styles;
+    
+    if(this.props.theme){
+      if(Object.prototype.toString.call(this.props.theme) === "[object String]"){
+        styles = state.themeFactory.getThemeFactory()[this.props.theme];
+      }
+      else{
+        styles= this.props.theme;
+      }
+    }
+    
     let cards={
       biggestcard: <BiggestCard app={app} />,
       biggercard: <BiggerCard app={app} />,
@@ -58,7 +68,9 @@ class MainContent extends Component{
     let styles =state.styles;
 
     return(
-    <div></div>
+    <div>This the student list
+      <MapComponent name="student" cells={["name"]} />
+    </div>
       )
   }
 }

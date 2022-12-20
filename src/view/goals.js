@@ -22,7 +22,7 @@ export default class Goals extends Component {
     let opps = state.opps;
     return (
       <div><h1>goals</h1>
-            <MapComponent app={app} name="goal" cells={["title", "description",  "delete" ]} />
+            <MapComponent app={app} name="goal" cells={["title", "description",  "delete" ]} theme = "legatoStudentList" />
 
       </div>
       // <div style={{width:"100vw", paddingTop: "10px"}}>

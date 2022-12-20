@@ -56,7 +56,7 @@ class MainContent extends Component{
     let styles =state.styles;
 
     return(
-      <MapComponent app={app} name="student" cells={[{img:"picURL"}, ["firstName", "lastName"], "_id", "delete", ]} linkOptions={{path:["/student/"], cells:[0,1,2]}}/>      
+      <MapComponent  app={app} name="student" cells={[{img:"picURL"}, ["firstName", "lastName"], "_id", "delete", ]} linkOptions={{path:["/student/"], cells:[0,1,2]}}/>      
 
       )
   }

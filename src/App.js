@@ -13,6 +13,8 @@ import Chat from './view/chat';
 import Login from './componentListNPM/componentForms/login';
 import Notes from './view/teacherNotes';
 import Users from './view/users';
+import ThemeFactory from './componentListNPM/themes/themeFactory';
+import NavThemeFactory from './componentListNPM/themes/navThemes/navThemeFactory';
 //fonts
 
 
@@ -29,9 +31,12 @@ export default class App extends Component {
       registerPage:false,
       user: undefined,
       componentListInterface: new ComponentListInterface(this.dispatch),
+      themeFactory: new ThemeFactory(),
+      navFactory: new NavThemeFactory(),
       componentList: undefined,
       currentCharacter: undefined,
       opps: undefined,
+      navType:"topBar",
       
       // switchcase: "home",
       
@@ -48,6 +53,8 @@ export default class App extends Component {
       backendUpdate:[],
       backend: false,
       myswitch: "home",
+      defaultTheme: "legato",
+      globalTheme: "",
       switchCase:[
         {path:"/", comp:Students, name: "Students" },
         {path: "/users", comp:Users, name: "Users"},
@@ -102,6 +109,23 @@ handleChange = (event) => {
 }
 
   async componentDidMount(){
+    if(this.state.navFactory){
+      let f = this.state.navFactory.getNavThemeFactory();
+      let styles = f["defaultTopNav"];
+      
+      this.setState({navStyles:styles, linkStyleDefault: styles.link});
+
+    }
+    if(this.state.themeFactory){
+      let f = this.state.themeFactory.getThemeFactory();
+      let styles = f[this.state.globalTheme!==""? this.state.globalTheme: this.state.defaultTheme!==""? this.state.defaultTheme: "default"];
+      
+      this.setState({styles:styles});
+    }
+    if(this.state.navFactory){
+
+    }
+
     let list;
     if(this.state.componentListInterface && this.state.componentList===undefined){
         list= await this.state.componentListInterface.createComponentList();
